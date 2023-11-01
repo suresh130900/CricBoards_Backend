@@ -1,5 +1,5 @@
+import json
 import re
-from bson import json_util
 from fastapi import FastAPI, status, Depends, HTTPException
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
@@ -7,6 +7,10 @@ import Models.matches as ms
 import bcrypt
 import Services.Match_service as Match_ser
 from DB.Db_Connect import db_connection
+from bson import json_util
+import Services.test as test
+import json
+
 
 app = FastAPI()
 
@@ -29,6 +33,85 @@ app.add_middleware(
 @app.get("/")
 async def root():
     return json_util._json_convert(Match_ser.find_all_matches())
+
+
+@app.get("/test")
+async def test1():
+    # return json_util._json_convert(test.all_matches("./Services/ipl_matches_2008_2022.csv").replace("/", '""'))
+    return json.loads(test.all_matches("./Services/ipl_matches_2008_2022.csv"))
+
+
+@app.get("/all_teams")
+async def all_teams_test():
+    return test.all_teams()
+
+
+@app.get("/all_venue")
+async def all_venue():
+    return test.all_venues()
+
+
+@app.get("/Matches_played")
+async def matches_played():
+    dict_data = [json.loads(item) for item in test.Matches_played_by_each_team()]
+    return dict_data
+
+
+@app.get("/Matches_won")
+async def matches_won():
+    # Convert the keys to strings
+    data = test.Matches_won_by_each_team().replace("('", "").replace("',)", "")
+
+    # Parse the modified data as JSON
+    parsed_data = json.loads(data)
+
+    # Now, you have a dictionary
+    print(parsed_data)
+    return parsed_data
+
+
+@app.get("/Man_of_match")
+async def man_of_match():
+    return test.Man_of_match()
+
+
+@app.get("/top_batsman")
+async def top_batsman():
+    return test.Top_batsman()
+
+
+def Worst_bowler(data):
+    merged_data = {}
+    for key in data["bowler"]:
+        bowler_name = data["bowler"][key]
+        total_runs = data["total_run"][key]
+        merged_data[bowler_name] = total_runs
+    return merged_data
+
+
+@app.get("/worst_bowler")
+async def worst_bowler():
+    return json.loads(test.Worst_bowler())
+
+
+@app.get('/team_wise_bolwer')
+def Bowler_team_wise():
+    return json.loads(test.Bowler_team_performance())
+
+
+@app.get("/virat_bumrah")
+def Virat_Bumrah():
+    return test.virat_bumrah()
+
+
+@app.get("/runs_faced_by_batsman_facing_bowler")
+def RunsFacedByBatsmanFacingBowler(batsman_name: str, bowler_name: str):
+    return test.runs_faced_by_batsman_facing_bowler(batsman_name, bowler_name)
+
+
+@app.get("/dismissal_counts")
+def DismissalCounts():
+    return json.loads(test.get_dismissal_counts())
 
 
 @app.post("/addMatch", status_code=status.HTTP_201_CREATED)
@@ -158,3 +241,5 @@ async def login_user(user: UserLogin):
             'error': True,
             'message': user.email + " is not valid"
         }
+
+
