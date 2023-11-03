@@ -40,7 +40,8 @@ def Matches_won_by_each_team():
 
 def Man_of_match():
     MoM = matches['player_of_match'].value_counts().head()
-    return MoM.tolist()
+    print(MoM)
+    return MoM.to_json()
 
 
 def Top_batsman():

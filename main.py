@@ -72,12 +72,12 @@ async def matches_won():
 
 @app.get("/Man_of_match")
 async def man_of_match():
-    return test.Man_of_match()
+    return json.loads(test.Man_of_match())
 
 
 @app.get("/top_batsman")
 async def top_batsman():
-    return test.Top_batsman()
+    return json.loads(test.Top_batsman())
 
 
 def Worst_bowler(data):
